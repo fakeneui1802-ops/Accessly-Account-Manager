@@ -35,6 +35,9 @@ Run that file — it installs Accessly like any normal Windows app, with a
 Start Menu entry and desktop shortcut. No internet connection is required
 to use it afterward.
 
+## ALTERNATIVE
+You can just use the newest release if you dont want install npm or just want it easy!
+
 ## About the icon (optional)
 The config references `build/icon.ico`. If that file doesn't exist,
 electron-builder will fall back to a default icon — the build still
