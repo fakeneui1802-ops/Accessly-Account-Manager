@@ -41,19 +41,6 @@ electron-builder will fall back to a default icon — the build still
 succeeds. To use your own icon, put a 256x256 `icon.ico` file in a `build/`
 folder next to `main.js`.
 
-## Upgrading from the old "Vaultic" install
-Because the app was renamed, Windows treats the new Accessly installer as a
-separate program from the old Vaultic one — it won't overwrite it in place.
-
-1. Install the new Accessly build (via `dist\Accessly Setup 1.0.0.exe`).
-2. Open it and confirm your existing accounts are still there (they will be —
-   the app is pinned to read the same local data folder as before, see
-   `main.js`).
-3. Once confirmed, uninstall the old "Vaultic" entry via
-   **Windows Settings → Apps → Installed apps**. This only removes the old
-   program files, not your data — your vault and backups live in `%APPDATA%`
-   and are untouched by uninstalling.
-
 ## How your data is stored
 Accessly encrypts everything client-side with AES-256-GCM (key derived via
 PBKDF2, 250,000 rounds, from your master password) before writing to the
