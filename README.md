@@ -8,7 +8,7 @@ binary from inside this chat — this is the source that builds into one.)
 - Install **Node.js LTS** from https://nodejs.org (includes npm).
 
 ## 2. Get the project onto your machine
-Unzip/copy this whole `vaultic-desktop` folder to your computer, then open a
+Unzip/copy this whole `acessly-account-manager-master` folder to your computer, then open a
 terminal (Command Prompt / PowerShell) inside it.
 
 ## 3. Install dependencies
