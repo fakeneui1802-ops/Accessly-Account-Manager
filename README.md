@@ -55,7 +55,7 @@ Use **Backups → Export vault file** inside the app regularly, and store
 that encrypted file somewhere safe (another drive, USB, cloud storage) —
 it's your disaster-recovery copy if this machine is lost or reformatted.
 
-## Updating the app later
+## Updating the app style on your own
 If you ask me for new features, I'll hand you an updated `renderer/index.html`
 (and any other changed files) — drop it into this same folder structure and
 re-run `npm run build` to get a new `.exe`.
