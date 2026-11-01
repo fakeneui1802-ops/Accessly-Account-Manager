@@ -41,7 +41,7 @@ You can just use the newest release if you dont want install npm or just want it
 ## About the icon (optional)
 The config references `build/icon.ico`. If that file doesn't exist,
 electron-builder will fall back to a default icon — the build still
-succeeds. To use your own icon, put a 256x256 `icon.ico` file in a `build/`
+succeeds. To use your own icon, put a 256x256 (512×512 or 1024×1024) `icon.ico` file in a `build/`
 folder next to `main.js`.
 
 ## How your data is stored
