@@ -1,8 +1,7 @@
 # Accessly — Desktop App (Windows .exe)
 
 This folder is a complete Electron project. Follow the steps below on your own
-Windows machine to produce a real installable `.exe`. (I can't compile a
-binary from inside this chat — this is the source that builds into one.)
+Windows machine to produce a real installable `.exe`.
 
 ## 1. Install prerequisites
 - Install **Node.js LTS** from https://nodejs.org (includes npm).
