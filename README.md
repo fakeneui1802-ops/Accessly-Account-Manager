@@ -29,7 +29,7 @@ npm run build
 ```
 This uses `electron-builder` to produce a Windows installer at:
 ```
-dist\Accessly Setup 1.0.0.exe
+dist\Accessly Setup 1.0.0.exe (The Version could be a different one for you!)
 ```
 Run that file — it installs Accessly like any normal Windows app, with a
 Start Menu entry and desktop shortcut. No internet connection is required
