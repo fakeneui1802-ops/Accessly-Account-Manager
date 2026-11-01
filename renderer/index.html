@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Accessly — Account Manager</title>
+<style>
+:root{--bg:#10141b;--bg2:#171c25;--card:#1b212b;--border:#2a3140;--text:#e4e7ec;--sub:#8b93a3;--acc:#3b6ea5;--acc2:#4a7691;--danger:#c0504d;--warn:#b5842a;--ok:#3f8f66;--radius:8px;color-scheme:dark;}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f4f5f7;--bg2:#ffffff;--card:#ffffff;--border:#dde1e8;--text:#1f242c;--sub:#5b6472;}}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;padding-top:env(safe-area-inset-top,0);padding-bottom:env(safe-area-inset-bottom,0);min-height:100vh;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 11px;outline:none;font-size:14px;}
+input:focus,select:focus,textarea:focus{border-color:var(--acc);}
+.btn{background:var(--acc);color:#fff;border:none;border-radius:9px;padding:10px 16px;font-weight:600;font-size:14px;transition:.15s;}
+.btn:hover{filter:brightness(1.1);}
+.btn.ghost{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn.danger{background:var(--danger);}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:7px;}
+.center{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:20px;}
+.logo{font-size:22px;font-weight:700;letter-spacing:.3px;color:var(--text);}
+.logo b{color:var(--acc);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;width:100%;max-width:380px;}
+.card h2{margin:0 0 4px;font-size:18px;}
+.card p{color:var(--sub);font-size:13px;margin:0 0 16px;}
+.field{margin-bottom:12px;}
+.field label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px;}
+.field input,.field select,.field textarea{width:100%;}
+.err{color:var(--danger);font-size:12px;min-height:16px;}
+#app{display:none;}
+.shell{display:flex;min-height:100vh;}
+.side{width:210px;background:var(--bg2);border-right:1px solid var(--border);padding:16px 10px;position:sticky;top:0;height:100vh;flex-shrink:0;}
+.side .logo{padding:8px 10px 16px;font-size:20px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:6px;color:var(--sub);font-size:14px;cursor:pointer;margin-bottom:2px;border-left:3px solid transparent;}
+.nav-item:hover{background:var(--card);}
+.nav-item.active{background:var(--card);color:var(--text);font-weight:600;border-left:3px solid var(--acc);}
+.main{flex:1;padding:22px 26px;max-width:100%;overflow-x:hidden;}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+.topbar h1{font-size:20px;margin:0;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.stat .n{font-size:24px;font-weight:800;}
+.stat .l{font-size:12px;color:var(--sub);}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.toolbar input,.toolbar select{flex:1;min-width:120px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.acc{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+.acc .h{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;}
+.acc .h b{font-size:15px;}
+.tag{display:inline-block;background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc);font-size:11px;padding:2px 7px;border-radius:5px;margin:2px 4px 0 0;font-weight:500;}
+.row{display:flex;align-items:center;gap:6px;font-size:13px;margin-top:7px;color:var(--sub);}
+.row .v{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:ui-monospace,monospace;}
+.icon-btn{background:none;border:none;color:var(--sub);padding:3px;border-radius:5px;font-size:14px;}
+.icon-btn:hover{color:var(--text);background:var(--bg2);}
+.bar{height:6px;border-radius:4px;background:var(--bg2);overflow:hidden;margin-top:4px;}
+.bar i{display:block;height:100%;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:30px 14px;overflow:auto;z-index:50;}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;width:100%;max-width:520px;}
+.modal h2{margin-top:0;}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.chip-sel{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.chip-sel span{border:1px solid var(--border);padding:4px 9px;border-radius:7px;font-size:12px;cursor:pointer;color:var(--sub);}
+.chip-sel span.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+.note{font-size:12px;color:var(--sub);background:var(--bg2);border-radius:8px;padding:8px 10px;margin-top:8px;}
+::-webkit-scrollbar{width:9px;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:5px;}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--acc);color:#fff;padding:9px 16px;border-radius:9px;font-size:13px;z-index:99;opacity:0;transition:.2s;pointer-events:none;}
+.toast.show{opacity:1;}
+@media(max-width:720px){.side{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:.2s;z-index:40;}.side.open{transform:translateX(0);}.main{padding:16px;}}
+.hamb{display:none;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 10px;}
+@media(max-width:720px){.hamb{display:inline-block;}}
+textarea{resize:vertical;min-height:60px;}
+</style>
+</head>
+<body>
+
+<div id="setup" class="center">
+  <div class="logo">🔒 <b>ACCESSLY</b></div>
+  <div class="card">
+    <h2 id="setupTitle">Create your vault</h2>
+    <p id="setupSub">Set a master password. It never leaves this device and nothing can be recovered without it.</p>
+    <div class="field"><label>Master password</label><input type="password" id="mp1"></div>
+    <div class="field" id="mp2wrap"><label>Confirm password</label><input type="password" id="mp2"></div>
+    <div class="err" id="setupErr"></div>
+    <button class="btn" style="width:100%" id="setupBtn">Create vault</button>
+    <div class="note">AES-256-GCM encryption, PBKDF2 (250,000 rounds) key derivation. Data is stored encrypted in this browser only.</div>
+  </div>
+</div>
+
+<div id="lock" class="center" style="display:none">
+  <div class="logo">🔒 <b>ACCESSLY</b></div>
+  <div class="card">
+    <h2>Vault locked</h2>
+    <p>Enter your master password to unlock.</p>
+    <div class="field"><input type="password" id="unlockPw" placeholder="Master password"></div>
+    <div class="err" id="unlockErr"></div>
+    <button class="btn" style="width:100%" id="unlockBtn">Unlock</button>
+  </div>
+</div>
+
+<div id="app">
+<div class="shell">
+  <div class="side" id="side">
+    <div class="logo">🔒 <b>ACCESSLY</b></div>
+    <div class="nav-item active" data-v="dashboard">📊 Dashboard</div>
+    <div class="nav-item" data-v="accounts">🗂 Accounts</div>
+    <div class="nav-item" data-v="generator">🎲 Generator</div>
+    <div class="nav-item" data-v="security">🛡 Security</div>
+    <div class="nav-item" data-v="backups">💾 Backups</div>
+    <div class="nav-item" data-v="settings">⚙️ Settings</div>
+    <div class="nav-item" id="lockNow">🔒 Lock now</div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <div style="display:flex;gap:10px;align-items:center"><button class="hamb" id="hamb">☰</button><h1 id="viewTitle">Dashboard</h1></div>
+      <button class="btn" id="addBtn">+ Add account</button>
+    </div>
+    <div id="view"></div>
+  </div>
+</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ---------- crypto helpers ---------- */
+const te=new TextEncoder(), td=new TextDecoder();
+const b64e=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
+const b64d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function deriveKey(pw,saltB64){
+  const salt=b64d(saltB64);
+  const km=await crypto.subtle.importKey('raw',te.encode(pw),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encObj(key,obj){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,te.encode(JSON.stringify(obj)));
+  return b64e(iv)+'.'+b64e(ct);
+}
+async function decObj(key,str){
+  const [ivs,cts]=str.split('.');
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(ivs)},key,b64d(cts));
+  return JSON.parse(td.decode(pt));
+}
+function newSalt(){return b64e(crypto.getRandomValues(new Uint8Array(16)));}
+
+/* ---------- state ---------- */
+let sessionKey=null, vault=null, lastActivity=Date.now(), currentView='dashboard', editId=null;
+const LS={salt:'vm_salt',vault:'vm_vault',backups:'vm_backups',settings:'vm_settings'};
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
+
+function getSettings(){try{return JSON.parse(localStorage.getItem(LS.settings))||{autoLock:5};}catch(e){return {autoLock:5};}}
+function setSettings(s){try{localStorage.setItem(LS.settings,JSON.stringify(s));}catch(e){}}
+
+/* ---------- setup / unlock ---------- */
+const hasVault=()=>!!localStorage.getItem(LS.salt);
+
+async function initScreen(){
+  if(hasVault()){
+    document.getElementById('setup').style.display='none';
+    document.getElementById('lock').style.display='flex';
+  } else {
+    document.getElementById('setup').style.display='flex';
+    document.getElementById('lock').style.display='none';
+  }
+}
+
+document.getElementById('setupBtn').onclick=async()=>{
+  const p1=document.getElementById('mp1').value, p2=document.getElementById('mp2').value;
+  const err=document.getElementById('setupErr'); err.textContent='';
+  if(p1.length<8){err.textContent='Use at least 8 characters.';return;}
+  if(p1!==p2){err.textContent='Passwords do not match.';return;}
+  const salt=newSalt();
+  localStorage.setItem(LS.salt,salt);
+  sessionKey=await deriveKey(p1,salt);
+  vault={accounts:[]};
+  await saveVault(true);
+  enterApp();
+};
+
+document.getElementById('unlockBtn').onclick=unlockFlow;
+document.getElementById('unlockPw').addEventListener('keydown',e=>{if(e.key==='Enter')unlockFlow();});
+async function unlockFlow(){
+  const pw=document.getElementById('unlockPw').value;
+  const err=document.getElementById('unlockErr'); err.textContent='';
+  const salt=localStorage.getItem(LS.salt);
+  try{
+    const key=await deriveKey(pw,salt);
+    const stored=localStorage.getItem(LS.vault);
+    const data=stored?await decObj(key,stored):{accounts:[]};
+    sessionKey=key; vault=data;
+    document.getElementById('unlockPw').value='';
+    enterApp();
+  }catch(e){ err.textContent='Incorrect password.'; }
+}
+
+function enterApp(){
+  document.getElementById('setup').style.display='none';
+  document.getElementById('lock').style.display='none';
+  document.getElementById('app').style.display='block';
+  lastActivity=Date.now();
+  render();
+  autoBackupCheck();
+}
+
+function lockNow(){
+  sessionKey=null; vault=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('lock').style.display='flex';
+}
+document.getElementById('lockNow').onclick=lockNow;
+
+['mousemove','keydown','click','scroll','touchstart'].forEach(ev=>document.addEventListener(ev,()=>lastActivity=Date.now()));
+setInterval(()=>{
+  if(!sessionKey)return;
+  const mins=getSettings().autoLock||5;
+  if(mins>0 && (Date.now()-lastActivity)>mins*60000) lockNow();
+},5000);
+
+/* ---------- persistence & backups ---------- */
+async function saveVault(skipBackup){
+  if(!sessionKey)return;
+  const enc=await encObj(sessionKey,vault);
+  try{localStorage.setItem(LS.vault,enc);}catch(e){toast('Storage error saving vault');}
+  if(!skipBackup) await pushBackup(enc);
+}
+async function pushBackup(encStr){
+  let list=[]; try{list=JSON.parse(localStorage.getItem(LS.backups))||[];}catch(e){}
+  list.unshift({ts:Date.now(),data:encStr,salt:localStorage.getItem(LS.salt)});
+  list=list.slice(0,15);
+  try{localStorage.setItem(LS.backups,JSON.stringify(list));}catch(e){}
+}
+let lastAutoBackup=0;
+function autoBackupCheck(){
+  setInterval(async()=>{
+    if(!sessionKey)return;
+    if(Date.now()-lastAutoBackup>5*60000){ lastAutoBackup=Date.now(); const enc=await encObj(sessionKey,vault); await pushBackup(enc); }
+  },60000);
+}
+
+/* ---------- password tools ---------- */
+function genPassword(opts){
+  const sets={lower:'abcdefghijklmnopqrstuvwxyz',upper:'ABCDEFGHIJKLMNOPQRSTUVWXYZ',digits:'0123456789',symbols:'!@#$%^&*()_+-=[]{}'};
+  let chars=''; Object.keys(sets).forEach(k=>{if(opts[k])chars+=sets[k];});
+  if(opts.excludeAmbiguous) chars=chars.replace(/[0O1lI]/g,'');
+  if(!chars) chars=sets.lower;
+  let out=''; const arr=new Uint32Array(opts.len);
+  crypto.getRandomValues(arr);
+  for(let i=0;i<opts.len;i++) out+=chars[arr[i]%chars.length];
+  return out;
+}
+function strength(pw){
+  if(!pw) return {score:0,label:'Empty',color:'var(--danger)'};
+  let pool=0;
+  if(/[a-z]/.test(pw))pool+=26; if(/[A-Z]/.test(pw))pool+=26; if(/[0-9]/.test(pw))pool+=10; if(/[^a-zA-Z0-9]/.test(pw))pool+=32;
+  const entropy=Math.log2(Math.max(pool,1))*pw.length;
+  let score,label,color;
+  if(entropy<28){score=1;label='Weak';color='var(--danger)';}
+  else if(entropy<45){score=2;label='Fair';color='var(--warn)';}
+  else if(entropy<65){score=3;label='Good';color='var(--acc2)';}
+  else {score=4;label='Strong';color='var(--ok)';}
+  return {score,label,color,entropy:Math.round(entropy)};
+}
+function copy(txt){ navigator.clipboard?.writeText(txt).then(()=>toast('Copied to clipboard')).catch(()=>toast('Copy failed')); }
+
+/* ---------- views ---------- */
+const views={dashboard:renderDashboard,accounts:renderAccounts,generator:renderGenerator,security:renderSecurity,backups:renderBackups,settings:renderSettings};
+document.querySelectorAll('.nav-item[data-v]').forEach(el=>el.onclick=()=>{currentView=el.dataset.v;document.querySelectorAll('.nav-item[data-v]').forEach(x=>x.classList.toggle('active',x===el));document.getElementById('side').classList.remove('open');render();});
+document.getElementById('hamb').onclick=()=>document.getElementById('side').classList.toggle('open');
+document.getElementById('addBtn').onclick=()=>openEditor(null);
+
+function titleOf(v){return {dashboard:'Dashboard',accounts:'Accounts',generator:'Password Generator',security:'Security Center',backups:'Backups',settings:'Settings'}[v];}
+
+function render(){
+  document.getElementById('viewTitle').textContent=titleOf(currentView);
+  document.getElementById('addBtn').style.display=currentView==='accounts'?'inline-block':'none';
+  views[currentView]();
+}
+
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+
+function renderDashboard(){
+  const accs=vault.accounts;
+  const weak=accs.filter(a=>strength(a.password).score<=1 && a.password).length;
+  const pwCounts={}; accs.forEach(a=>{if(a.password)pwCounts[a.password]=(pwCounts[a.password]||0)+1;});
+  const reused=Object.values(pwCounts).filter(c=>c>1).reduce((s,c)=>s+c,0);
+  const cats={}; accs.forEach(a=>{const c=a.category||'Uncategorized';cats[c]=(cats[c]||0)+1;});
+  document.getElementById('view').innerHTML=`
+  <div class="stats">
+    <div class="stat"><div class="n">${accs.length}</div><div class="l">Total accounts</div></div>
+    <div class="stat"><div class="n" style="color:var(--danger)">${weak}</div><div class="l">Weak passwords</div></div>
+    <div class="stat"><div class="n" style="color:var(--warn)">${reused}</div><div class="l">Reused passwords</div></div>
+    <div class="stat"><div class="n" style="color:var(--acc2)">${Object.keys(cats).length}</div><div class="l">Categories</div></div>
+  </div>
+  <div class="card" style="max-width:none">
+    <h2>Categories</h2>
+    ${Object.keys(cats).length? Object.entries(cats).map(([k,v])=>`<div class="row"><span class="v" style="text-align:left">${esc(k)}</span><b>${v}</b></div>`).join('') : '<p style="color:var(--sub)">No accounts yet.</p>'}
+  </div>`;
+}
+
+function matchFilter(a,q,cat,tag){
+  const blob=[a.name,a.username,a.email,a.url,a.category,(a.tags||[]).join(' '),a.notes].join(' ').toLowerCase();
+  if(q && !blob.includes(q.toLowerCase())) return false;
+  if(cat && a.category!==cat) return false;
+  if(tag && !(a.tags||[]).includes(tag)) return false;
+  return true;
+}
+
+function renderAccounts(){
+  const cats=[...new Set(vault.accounts.map(a=>a.category).filter(Boolean))];
+  const tags=[...new Set(vault.accounts.flatMap(a=>a.tags||[]))];
+  document.getElementById('view').innerHTML=`
+  <div class="toolbar">
+    <input id="q" placeholder="🔍 Search accounts...">
+    <select id="fcat"><option value="">All categories</option>${cats.map(c=>`<option>${esc(c)}</option>`).join('')}</select>
+    <select id="ftag"><option value="">All tags</option>${tags.map(t=>`<option>${esc(t)}</option>`).join('')}</select>
+    <select id="fsort">
+      <option value="az">Name: A → Z</option>
+      <option value="za">Name: Z → A</option>
+      <option value="cat">Category</option>
+      <option value="recent">Recently updated</option>
+      <option value="oldest">Oldest updated</option>
+    </select>
+  </div>
+  <div class="grid" id="accGrid"></div>`;
+  const sortList=(list,mode)=>{
+    const byName=(a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true,sensitivity:'base'});
+    const sorted=[...list];
+    if(mode==='az') sorted.sort(byName);
+    else if(mode==='za') sorted.sort((a,b)=>byName(b,a));
+    else if(mode==='cat') sorted.sort((a,b)=>(a.category||'').localeCompare(b.category||'',undefined,{numeric:true,sensitivity:'base'})||byName(a,b));
+    else if(mode==='recent') sorted.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+    else if(mode==='oldest') sorted.sort((a,b)=>(a.updatedAt||0)-(b.updatedAt||0));
+    return sorted;
+  };
+  const paint=()=>{
+    const q=document.getElementById('q').value, cat=document.getElementById('fcat').value, tag=document.getElementById('ftag').value, sort=document.getElementById('fsort').value;
+    let list=vault.accounts.filter(a=>matchFilter(a,q,cat,tag));
+    list=sortList(list,sort);
+    document.getElementById('accGrid').innerHTML=list.length?list.map(cardHtml).join(''):'<p style="color:var(--sub)">No accounts match.</p>';
+    attachCardHandlers();
+  };
+  document.getElementById('q').oninput=paint;
+  document.getElementById('fcat').onchange=paint;
+  document.getElementById('ftag').onchange=paint;
+  document.getElementById('fsort').onchange=paint;
+  paint();
+}
+
+function cardHtml(a){
+  const st=strength(a.password);
+  return `<div class="acc" data-id="${a.id}">
+    <div class="h"><b>${esc(a.name)}</b><div><button class="icon-btn edit" title="Edit">✏️</button><button class="icon-btn del" title="Delete">🗑️</button></div></div>
+    <div>${a.category?`<span class="tag">${esc(a.category)}</span>`:''}${(a.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>
+    ${a.username||a.email?`<div class="row"><span>👤</span><span class="v">${esc(a.username||a.email)}</span><button class="icon-btn cp" data-f="${esc(a.username||a.email)}">📋</button></div>`:''}
+    ${a.password?`<div class="row"><span>🔑</span><span class="v mask" data-real="${esc(a.password)}">••••••••••</span><button class="icon-btn rv">👁</button><button class="icon-btn cp" data-f="${esc(a.password)}">📋</button></div>
+    <div class="bar"><i style="width:${st.score*25}%;background:${st.color}"></i></div>`:''}
+  </div>`;
+}
+function attachCardHandlers(){
+  document.querySelectorAll('.acc .cp').forEach(b=>b.onclick=()=>copy(b.dataset.f));
+  document.querySelectorAll('.acc .rv').forEach(b=>b.onclick=()=>{const s=b.previousElementSibling;s.textContent=s.textContent.startsWith('•')?s.dataset.real:'••••••••••';});
+  document.querySelectorAll('.acc .edit').forEach(b=>b.onclick=()=>openEditor(b.closest('.acc').dataset.id));
+  document.querySelectorAll('.acc .del').forEach(b=>b.onclick=async()=>{const id=b.closest('.acc').dataset.id;if(confirm('Delete this account?')){vault.accounts=vault.accounts.filter(a=>a.id!==id);await saveVault();render();}});
+}
+
+function renderGenerator(){
+  document.getElementById('view').innerHTML=`
+  <div class="card" style="max-width:480px">
+    <h2>Password Generator</h2>
+    <div class="field"><label>Length: <span id="lenVal">16</span></label><input type="range" id="len" min="6" max="48" value="16" style="width:100%"></div>
+    <div class="chip-sel">
+      <span class="on" data-o="lower">a-z</span><span class="on" data-o="upper">A-Z</span><span class="on" data-o="digits">0-9</span><span class="on" data-o="symbols">symbols</span><span data-o="excludeAmbiguous">exclude ambiguous</span>
+    </div>
+    <div class="field" style="margin-top:14px"><input id="genOut" readonly style="width:100%;font-family:monospace;font-size:15px;text-align:center"></div>
+    <div class="bar"><i id="genBar"></i></div>
+    <p id="genLabel" style="font-size:12px;color:var(--sub);margin-top:6px"></p>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn" id="genBtn" style="flex:1">🎲 Generate</button>
+      <button class="btn ghost" id="genCopy">📋 Copy</button>
+    </div>
+  </div>`;
+  const opts={lower:true,upper:true,digits:true,symbols:true,excludeAmbiguous:false,len:16};
+  document.querySelectorAll('.chip-sel span').forEach(c=>c.onclick=()=>{c.classList.toggle('on');opts[c.dataset.o]=c.classList.contains('on');go();});
+  document.getElementById('len').oninput=e=>{opts.len=+e.target.value;document.getElementById('lenVal').textContent=opts.len;go();};
+  function go(){
+    const pw=genPassword(opts); document.getElementById('genOut').value=pw;
+    const st=strength(pw); document.getElementById('genBar').style.cssText=`width:${st.score*25}%;background:${st.color}`;
+    document.getElementById('genLabel').textContent=`${st.label} • ~${st.entropy} bits of entropy`;
+  }
+  document.getElementById('genBtn').onclick=go;
+  document.getElementById('genCopy').onclick=()=>copy(document.getElementById('genOut').value);
+  go();
+}
+
+function renderSecurity(){
+  const accs=vault.accounts;
+  const weak=accs.filter(a=>a.password && strength(a.password).score<=1);
+  const pwMap={}; accs.forEach(a=>{if(a.password){(pwMap[a.password]=pwMap[a.password]||[]).push(a);}});
+  const dup=Object.values(pwMap).filter(l=>l.length>1);
+  document.getElementById('view').innerHTML=`
+  <div class="card" style="max-width:none">
+    <h2>⚠️ Weak passwords (${weak.length})</h2>
+    ${weak.length?weak.map(a=>`<div class="row"><span class="v" style="text-align:left">${esc(a.name)}</span></div>`).join(''):'<p style="color:var(--sub)">None found.</p>'}
+  </div>
+  <div class="card" style="max-width:none;margin-top:14px">
+    <h2>♻️ Reused passwords (${dup.length} groups)</h2>
+    ${dup.length?dup.map(g=>`<div class="row"><span class="v" style="text-align:left">${g.map(a=>esc(a.name)).join(', ')}</span></div>`).join(''):'<p style="color:var(--sub)">None found.</p>'}
+  </div>`;
+}
+
+function renderBackups(){
+  let list=[]; try{list=JSON.parse(localStorage.getItem(LS.backups))||[];}catch(e){}
+  document.getElementById('view').innerHTML=`
+  <div class="card" style="max-width:none">
+    <h2>Backups & Recovery</h2>
+    <p>Encrypted snapshots are created automatically on every change and every 5 minutes while unlocked. Keep the last 15.</p>
+    <div style="display:flex;gap:8px;margin-bottom:12px"><button class="btn" id="exportBtn">⬇️ Export vault file</button><button class="btn ghost" id="importBtn">⬆️ Import / Restore file</button><input type="file" id="importFile" style="display:none" accept=".json"></div>
+    ${list.length?list.map((b,i)=>`<div class="row"><span class="v" style="text-align:left">${new Date(b.ts).toLocaleString()}</span><button class="btn sm" data-i="${i}" id="restore${i}">Restore</button></div>`).join(''):'<p style="color:var(--sub)">No backups yet.</p>'}
+  </div>`;
+  document.getElementById('exportBtn').onclick=()=>{
+    const salt=localStorage.getItem(LS.salt), data=localStorage.getItem(LS.vault);
+    const blob=new Blob([JSON.stringify({salt,data,exported:Date.now()})],{type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='vaultic-backup.json'; a.click();
+    toast('Encrypted file downloaded');
+  };
+  document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
+  document.getElementById('importFile').onchange=async e=>{
+    const f=e.target.files[0]; if(!f)return;
+    try{
+      const obj=JSON.parse(await f.text());
+      let key=sessionKey;
+      try{ const merged=await decObj(key,obj.data); mergeAccounts(merged.accounts); }
+      catch(err){
+        const pw=prompt('Enter the master password used to encrypt this file:');
+        if(!pw)return;
+        key=await deriveKey(pw,obj.salt);
+        const merged=await decObj(key,obj.data);
+        mergeAccounts(merged.accounts);
+      }
+      await saveVault(); render(); toast('Import complete');
+    }catch(err){ toast('Import failed — invalid file or password'); }
+  };
+  list.forEach((b,i)=>{const btn=document.getElementById('restore'+i); if(btn)btn.onclick=async()=>{
+    if(!confirm('Restore this backup? Current data will be replaced.'))return;
+    try{ vault=await decObj(sessionKey,b.data); await saveVault(true); render(); toast('Backup restored'); }
+    catch(e){ toast('Restore failed'); }
+  };});
+}
+function mergeAccounts(incoming){
+  const ids=new Set(vault.accounts.map(a=>a.id));
+  incoming.forEach(a=>{ if(!ids.has(a.id)) vault.accounts.push(a); });
+}
+
+function renderSettings(){
+  const s=getSettings();
+  document.getElementById('view').innerHTML=`
+  <div class="card">
+    <h2>Settings</h2>
+    <div class="field"><label>Auto-lock after inactivity (minutes, 0 = never)</label><input type="number" id="alMin" min="0" max="120" value="${s.autoLock}"></div>
+    <button class="btn" id="saveSettings">Save</button>
+  </div>
+  <div class="card" style="margin-top:14px;border-color:var(--danger)">
+    <h2 style="color:var(--danger)">Danger zone</h2>
+    <p>Wipe all local vault data permanently from this browser.</p>
+    <button class="btn danger" id="wipeBtn">Delete vault & all data</button>
+  </div>`;
+  document.getElementById('saveSettings').onclick=()=>{setSettings({autoLock:+document.getElementById('alMin').value});toast('Settings saved');};
+  document.getElementById('wipeBtn').onclick=()=>{
+    if(confirm('This permanently deletes your encrypted vault and backups from this browser. Continue?')){
+      localStorage.removeItem(LS.salt);localStorage.removeItem(LS.vault);localStorage.removeItem(LS.backups);localStorage.removeItem(LS.settings);
+      location.reload();
+    }
+  };
+}
+
+/* ---------- editor modal ---------- */
+function openEditor(id){
+  editId=id;
+  const a=id?vault.accounts.find(x=>x.id===id):{name:'',category:'',tags:[],url:'',username:'',email:'',password:'',passkeys:'',recoveryCodes:'',secQ:'',secA:'',notes:''};
+  const bg=document.createElement('div'); bg.className='modal-bg'; bg.id='editorBg';
+  bg.innerHTML=`<div class="modal">
+    <h2>${id?'Edit':'Add'} account</h2>
+    <div class="two"><div class="field"><label>Name / Service</label><input id="f_name" value="${esc(a.name)}"></div>
+    <div class="field"><label>Category</label><input id="f_cat" value="${esc(a.category)}" placeholder="e.g. Social"></div></div>
+    <div class="field"><label>Website URL</label><input id="f_url" value="${esc(a.url)}"></div>
+    <div class="two"><div class="field"><label>Username</label><input id="f_user" value="${esc(a.username)}"></div>
+    <div class="field"><label>Email</label><input id="f_email" value="${esc(a.email)}"></div></div>
+    <div class="field"><label>Password</label><div style="display:flex;gap:6px"><input id="f_pass" value="${esc(a.password)}" style="flex:1"><button class="btn ghost sm" id="f_genBtn">🎲</button></div></div>
+    <div class="field"><label>Tags (comma separated)</label><input id="f_tags" value="${esc((a.tags||[]).join(', '))}"></div>
+    <div class="field"><label>Passkeys</label><textarea id="f_passkey">${esc(a.passkeys)}</textarea></div>
+    <div class="field"><label>Recovery codes</label><textarea id="f_recovery">${esc(a.recoveryCodes)}</textarea></div>
+    <div class="two"><div class="field"><label>Security question</label><input id="f_secq" value="${esc(a.secQ)}"></div>
+    <div class="field"><label>Security answer</label><input id="f_seca" value="${esc(a.secA)}"></div></div>
+    <div class="field"><label>Notes</label><textarea id="f_notes">${esc(a.notes)}</textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+      <button class="btn ghost" id="cancelEd">Cancel</button><button class="btn" id="saveEd">Save</button>
+    </div>
+  </div>`;
+  document.body.appendChild(bg);
+  document.getElementById('f_genBtn').onclick=()=>{document.getElementById('f_pass').value=genPassword({lower:true,upper:true,digits:true,symbols:true,len:16});};
+  document.getElementById('cancelEd').onclick=()=>bg.remove();
+  bg.onclick=e=>{if(e.target===bg)bg.remove();};
+  document.getElementById('saveEd').onclick=async()=>{
+    const obj={
+      id:id||('a'+Date.now()+Math.random().toString(36).slice(2,7)),
+      name:document.getElementById('f_name').value.trim()||'Untitled',
+      category:document.getElementById('f_cat').value.trim(),
+      url:document.getElementById('f_url').value.trim(),
+      username:document.getElementById('f_user').value.trim(),
+      email:document.getElementById('f_email').value.trim(),
+      password:document.getElementById('f_pass').value,
+      tags:document.getElementById('f_tags').value.split(',').map(t=>t.trim()).filter(Boolean),
+      passkeys:document.getElementById('f_passkey').value,
+      recoveryCodes:document.getElementById('f_recovery').value,
+      secQ:document.getElementById('f_secq').value,
+      secA:document.getElementById('f_seca').value,
+      notes:document.getElementById('f_notes').value,
+      updatedAt:Date.now()
+    };
+    if(id){ vault.accounts=vault.accounts.map(x=>x.id===id?obj:x); } else { vault.accounts.push(obj); }
+    await saveVault(); bg.remove(); render(); toast('Saved');
+  };
+}
+
+initScreen();
+</script>
+</body>
+</html>
