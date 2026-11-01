@@ -1,0 +1,35 @@
+{
+  "name": "accessly",
+  "productName": "Accessly",
+  "version": "1.0.0",
+  "description": "Accessly — a secure, local, encrypted account manager.",
+  "main": "main.js",
+  "author": "neui1802",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win",
+    "build:all": "electron-builder -mwl"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.accessly.app",
+    "productName": "Accessly",
+    "directories": { "output": "dist" },
+    "files": ["main.js", "preload.js", "renderer/**/*", "build/**/*"],
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "mac": { "target": ["dmg"], "icon": "build/icon.icns" },
+    "linux": { "target": ["AppImage"], "icon": "build/icon.png" }
+  }
+}
